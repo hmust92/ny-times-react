@@ -4,7 +4,7 @@ const mongoose = require("mongoose");
 const bluebird = require("bluebird");
 const bodyParser = require("body-parser");
 const path = require("path");
-const routes = require("./server/routing");
+
 
 // Set up a default port, configure mongoose, configure our middleware
 const PORT = process.env.PORT || 3001;
@@ -15,7 +15,7 @@ app.use(bodyParser.json());
 
 // Serve up static assets if in production (running on Heroku)
 if (process.env.NODE_ENV === "production") {
-  app.use(express.static("client/build"));
+  app.use(express.static("client/public"));
 } else {
   app.use(express.static(__dirname + "/client/public"));
 }
@@ -29,7 +29,21 @@ app.use((req, res, next) => {
 });
 
 
-app.use(routes);
+var articlesController = require("./server/controllers/article-controller");
+var router = new express.Router();
+// Define any API routes first
+// Get saved articles
+router.get("/api/saved", articlesController.find);
+// Save articles
+router.post("/api/saved", articlesController.insert);
+// delete saved articles
+router.delete("/api/saved/:id", articlesController.delete);
+// Send every other request to the React app
+router.get("/*", function(req, res) {
+  res.sendFile(path.join(__dirname, "./client/build/index.html"));
+});
+
+app.use(router);
 
 // Connect mongoose to our database
 const db = process.env.MONGODB_URI || "mongodb://localhost/ny-times";
