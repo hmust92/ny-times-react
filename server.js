@@ -46,17 +46,13 @@ router.get("/*", function(req, res) {
 app.use(router);
 
 // Connect mongoose to our database
-const db = process.env.MONGODB_URI || "mongodb://localhost/ny-times";
-mongoose.connect(db, function(error) {
-  // Log any errors connecting with mongoose
-  if (error) {
-    console.error(error);
-  }
-  // Or log a success message
-  else {
-    console.log("mongoose connection is successful");
-  }
-});
+// Connect to the Mongo DB
+var MONGODB_URI = process.env.MONGODB_URI || "mongodb://localhost/ny-times";
+
+// Set mongoose to leverage built in JavaScript ES6 Promises
+// Connect to the Mongo DB
+mongoose.Promise = Promise;
+mongoose.connect(MONGODB_URI);
 
 // Start the server
 app.listen(PORT, function() {
